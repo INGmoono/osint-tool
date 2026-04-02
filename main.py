@@ -12,6 +12,8 @@ import sys
 from modules.domain import get_domain_info
 from modules.dns import get_dns_records
 from modules.ip_info import get_ip_info
+from modules.subdomains.passive import enumerate_passive
+from modules.subdomains.active import enumerate_active
 
 
 def main():
@@ -26,6 +28,8 @@ def main():
         return
 
     target = sys.argv[1]
+
+    mode = sys.argv[2] if len(sys.argv) > 2 else "--all"
 
     print(f"\n[+] Target: {target}\n")
 
@@ -44,18 +48,40 @@ def main():
     else:
         results["ip_info"] = {"error": "No IP encontrada"}
 
+    # Subdomains
+    subdomains = set()
+
+    if mode in ["--passive", "--all"]:
+        print("[+] Running passive subdomain enumeration...")
+        passive = enumerate_passive(target)
+        subdomains.update(passive)
+
+    if mode in ["--active", "--all"]:
+        print("[+] Running active subdomain enumeration...")
+        active = enumerate_active(target, "wordlists/subdomains.txt")
+        subdomains.update(active)
+
+    results["subdomains"] = sorted(subdomains)
+
     print_results(results)
 
 
 def print_results(results):
-    print("[+] RESULTADOS\n")
+    print("[+] RESULTS\n")
 
     for section, data in results.items():
         print(f"--- {section.upper()} ---")
-        for key, value in data.items():
-            print(f"{key}: {value}")
-        print()
 
+        if isinstance(data, dict):
+            for key, value in data.items():
+                print(f"{key}: {value}")
+        elif isinstance(data, list):
+            for item in data:
+                print(item)
+        else:
+            print(data)
+
+        print()
 
 if __name__ == "__main__":
     main()
