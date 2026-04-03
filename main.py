@@ -14,6 +14,7 @@ from modules.dns import get_dns_records
 from modules.ip_info import get_ip_info
 from modules.subdomains.passive import enumerate_passive
 from modules.subdomains.active import enumerate_active
+from modules.web_info import get_web_info
 
 
 def main():
@@ -48,6 +49,9 @@ def main():
     else:
         results["ip_info"] = {"error": "No IP encontrada"}
 
+    # Web Info
+    results["web_info"] = get_web_info(target)    
+
     # Subdomains
     subdomains = set()
 
@@ -73,8 +77,16 @@ def print_results(results):
         print(f"--- {section.upper()} ---")
 
         if isinstance(data, dict):
-            for key, value in data.items():
-                print(f"{key}: {value}")
+            # 🔥 Caso especial: WEB_INFO
+            if section == "web_info":
+                print(f"url: {data.get('url')}")
+                print(f"status_code: {data.get('status_code')}")
+                print(f"server: {data.get('server')}")
+                print(f"technologies: {data.get('technologies')}")
+            
+            else:
+                for key, value in data.items():
+                    print(f"{key}: {value}")
         elif isinstance(data, list):
             for item in data:
                 print(item)
