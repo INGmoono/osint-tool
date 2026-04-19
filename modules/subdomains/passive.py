@@ -33,7 +33,6 @@ def enumerate_passive(domain: str) -> list:
                 time.sleep(3)
                 continue
 
-            # 🔥 VALIDACIÓN CLAVE
             if "application/json" not in response.headers.get("Content-Type", ""):
                 print("[PASSIVE] Invalid response (not JSON)")
                 time.sleep(3)
